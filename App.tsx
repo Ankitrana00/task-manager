@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  Keyboard,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 
@@ -29,6 +30,7 @@ export default function App() {
       };
       setTasks([...tasks, newTask]);
       setInput('');
+      Keyboard.dismiss();
     }
   };
 
@@ -43,6 +45,13 @@ export default function App() {
   const deleteTask = (id: string) => {
     setTasks(tasks.filter(task => task.id !== id));
   };
+
+  const clearCompleted = () => {
+    setTasks(tasks.filter(task => !task.completed));
+  };
+
+  const completedCount = tasks.filter(task => task.completed).length;
+  const totalCount = tasks.length;
 
   const renderTask = ({ item }: { item: Task }) => (
     <View style={styles.taskItem}>
@@ -78,6 +87,9 @@ export default function App() {
       <StatusBar style="light" />
       <View style={styles.header}>
         <Text style={styles.title}>Task Manager</Text>
+        <Text style={styles.counter}>
+          {completedCount} / {totalCount} completed
+        </Text>
       </View>
 
       <View style={styles.inputSection}>
@@ -86,7 +98,9 @@ export default function App() {
           placeholder="Add a new task..."
           value={input}
           onChangeText={setInput}
+          onSubmitEditing={addTask}
           placeholderTextColor="#999"
+          returnKeyType="done"
         />
         <TouchableOpacity style={styles.addBtn} onPress={addTask}>
           <Text style={styles.addBtnText}>+</Text>
@@ -102,6 +116,16 @@ export default function App() {
           <Text style={styles.emptyText}>No tasks yet. Add one to get started!</Text>
         }
       />
+
+      {completedCount > 0 && (
+        <View style={styles.footer}>
+          <TouchableOpacity style={styles.clearBtn} onPress={clearCompleted}>
+            <Text style={styles.clearBtnText}>
+              Clear {completedCount} Completed Task{completedCount > 1 ? 's' : ''}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -121,6 +145,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
+  },
+  counter: {
+    fontSize: 14,
+    color: '#fff',
+    textAlign: 'center',
+    marginTop: 4,
+    opacity: 0.9,
   },
   inputSection: {
     flexDirection: 'row',
@@ -204,5 +235,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#999',
     marginTop: 32,
+  },
+  footer: {
+    padding: 16,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+  },
+  clearBtn: {
+    backgroundColor: '#ff6b6b',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  clearBtnText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
